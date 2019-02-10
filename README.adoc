@@ -1,0 +1,46 @@
+= Access Log Stats
+
+Simple Java 11 software polling a log file.
+
+== Quick start
+
+Image is available on docker hub:
+
+[source,sh]
+----
+docker run \
+    -v /myfolderwithaccesslog:/tmp
+    registry-1.docker.io/rmannibucau/access-log-stats-core:1.0.0_20190210193013
+----
+
+To get the help and the available options just run:
+
+[source,sh]
+----
+docker run registry-1.docker.io/rmannibucau/access-log-stats-core:1.0.0_20190210193013 help
+----
+
+== Building
+
+[source,sh]
+----
+mvn clean install [-Pdocker]
+----
+
+Main code is in core module, the link module is fully dedicated
+to create a jlink binary (lighter than a full JVM) and docker image.
+
+If you activated docker profile you will get the image name in the log:
+
+[source]
+----
+[INFO] Built image to Docker daemon as rmannibucau/access-log-stats-core:1.0.0_20190210183335
+----
+
+== Dev notes
+
+1. The software is dependency free in the goal to use jlink to build a light docker image (not yet finished)
+2. `parser` package includes some composable parser to analyze lines
+3. `service` contains mainly the lines handling
+4. `io` contains the logic to read a file keeping track of current offset
+5. `cli` is a very light CLI-Java mapper to simplify main writing (can be replaced by crest, args4j or so once j11 friendly)

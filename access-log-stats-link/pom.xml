@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>access-log-stats</artifactId>
+    <groupId>com.github.rmannibucau</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>access-log-stats-link</artifactId>
+  <name>Access Log Stats :: JLink</name>
+  <packaging>jlink</packaging>
+
+  <properties>
+    <docker.registry />
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.github.rmannibucau</groupId>
+      <artifactId>access-log-stats-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!--
+      Maven is not yet the best wrapper of jlink but at least with that
+      we can run an image < 20M with:
+      $ ./bin/java - -add-modules com.github.rmannibucau.log.access.core com.github.rmannibucau.log.access.core.Launcher
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jlink-plugin</artifactId>
+        <version>3.0.0-alpha-1</version>
+        <extensions>true</extensions>
+        <dependencies>
+          <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>7.0</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <!-- simple script creating the docker image or OCI image without requiring docker -->
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>1.6.2</version>
+        <executions>
+          <execution>
+            <id>create-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <allowSystemExits>true</allowSystemExits>
+              <scripts>
+                <script>src/main/build/Docker.groovy</script>
+              </scripts>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.5.6</version>
+            <type>pom</type>
+          </dependency>
+          <dependency> <!-- TODO: should switch to jib-core but not yet available in the version we need -->
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <version>1.0.0-rc1</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+</project>

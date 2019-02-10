@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>access-log-stats</artifactId>
+    <groupId>com.github.rmannibucau</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>access-log-stats-core</artifactId>
+  <name>Access Log Stats :: Core</name>
+
+  <dependencies>
+    <!-- we build a binary using jlink so ensure it is compatible if you add anything here -->
+  </dependencies>
+
+  <properties>
+    <image.currentVersion>
+      ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}_${maven.build.timestamp}
+    </image.currentVersion>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    <docker.registry></docker.registry> <!-- used to push remotely setting it -->
+    <jib.version>1.0.0-rc1</jib.version>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>parse-version</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>parse-version</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>${jib.version}</version>
+        <configuration>
+          <from> <!-- finish jlink image to decrease the size of that one with a factor of 10! -->
+            <image>openjdk:11.0.2-oracle</image>
+          </from>
+          <to>
+            <image>${docker.registry}rmannibucau/${project.artifactId}:${image.currentVersion}</image>
+          </to>
+          <container>
+            <mainClass>com.github.rmannibucau.log.access.core.Launcher</mainClass>
+            <appRoot>/opt/rmannibucau/${project.artifactId}</appRoot>
+            <workingDirectory>/opt/rmannibucau/${project.artifactId}</workingDirectory>
+            <environment>
+              <LANG>en_US.UTF-8</LANG>
+              <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
+            </environment>
+            <jvmFlags>
+              <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
+            </jvmFlags>
+            <labels>
+              <com.github.rmannibucau.maintainer>rmannibucau</com.github.rmannibucau.maintainer>
+              <com.github.rmannibucau.build-date>${maven.build.timestamp}</com.github.rmannibucau.build-date>
+              <com.github.rmannibucau.repositories>${project.scm.url}</com.github.rmannibucau.repositories>
+              <com.github.rmannibucau.groupId>${project.groupId}</com.github.rmannibucau.groupId>
+              <com.github.rmannibucau.artifactId>${project.artifactId}</com.github.rmannibucau.artifactId>
+            </labels>
+          </container>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <version>${jib.version}</version>
+            <executions>
+              <execution>
+                <id>create-docker</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>dockerBuild</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>remote-docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <version>${jib.version}</version>
+            <executions>
+              <execution>
+                <id>create-remote-docker</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
