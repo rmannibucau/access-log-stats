@@ -10,14 +10,14 @@ Image is available on docker hub:
 ----
 docker run \
     -v /myfolderwithaccesslog:/tmp
-    registry-1.docker.io/rmannibucau/access-log-stats-core:1.0.0_20190210193013
+    rmannibucau/access-log-stats-core:1.0.0_20190210194304
 ----
 
 To get the help and the available options just run:
 
 [source,sh]
 ----
-docker run registry-1.docker.io/rmannibucau/access-log-stats-core:1.0.0_20190210193013 help
+docker run rmannibucau/access-log-stats-core:1.0.0_20190210194304
 ----
 
 == Building
