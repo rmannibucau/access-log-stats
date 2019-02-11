@@ -16,12 +16,16 @@
 
   <modules>
     <module>access-log-stats-core</module>
-    <!--
-    not yet docker friendly enough to be worth it
-    (no cross compilation without downloading jdk for all env -> requires toolchain setup)
-    <module>access-log-stats-link</module>
-    -->
   </modules>
+
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <modules>
+        <module>access-log-stats-link</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <dependencies>
     <dependency>

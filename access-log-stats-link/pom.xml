@@ -14,7 +14,7 @@
   <packaging>jlink</packaging>
 
   <properties>
-    <docker.registry />
+    <docker.registry/>
   </properties>
 
   <dependencies>
@@ -25,11 +25,13 @@
     </dependency>
   </dependencies>
 
+  <!--
+  IMPORTANT: build on a linux64 or at least with a jdk11 linux64 (if you setup+configure toolchain)
+  -->
   <build>
     <plugins>
       <!--
-      Maven is not yet the best wrapper of jlink but at least with that
-      we can run an image < 20M with:
+      To launch native image:
       $ ./bin/java - -add-modules com.github.rmannibucau.log.access.core com.github.rmannibucau.log.access.core.Launcher
       -->
       <plugin>
@@ -37,6 +39,11 @@
         <artifactId>maven-jlink-plugin</artifactId>
         <version>3.0.0-alpha-1</version>
         <extensions>true</extensions>
+        <configuration>
+          <noHeaderFiles>true</noHeaderFiles>
+          <noManPages>true</noManPages>
+          <stripDebug>true</stripDebug>
+        </configuration>
         <dependencies>
           <dependency>
             <groupId>org.ow2.asm</groupId>
@@ -45,7 +52,7 @@
           </dependency>
         </dependencies>
       </plugin>
-      <!-- simple script creating the docker image or OCI image without requiring docker -->
+      <!-- simple script creating the docker image or OCI image without requiring docker daemon on the machine -->
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
@@ -60,7 +67,7 @@
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
-                <script>src/main/build/Docker.groovy</script>
+                <script>${project.basedir}/src/main/build/Docker.groovy</script>
               </scripts>
             </configuration>
           </execution>

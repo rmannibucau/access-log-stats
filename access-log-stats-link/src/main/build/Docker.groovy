@@ -29,14 +29,14 @@ def zipToAdd = buildDir.resolve("${project.build.finalName}.zip")
 if (!zipToAdd.toFile().exists()) {
     throw new IllegalStateException("Missing file ${zipToAdd}")
 }
-def exploded = new File(project.build.directory, "${project.artifactId}")
-new AntBuilder().unzip(src: zipToAdd, dest: exploded)
+def exploded = new File(project.build.directory, 'maven-jlink') // exploded distro
 
 // setup jib
 def workingDir = AbsoluteUnixPath.get("/opt/rmannibucau/${project.artifactId}")
-def builder = Jib.from(ImageReference.parse('alpine:3.7'))
+def builder = Jib.from(ImageReference.parse('rmannibucau/jlink-base:11'))
 builder.setCreationTime(Instant.now())
 builder.setWorkingDirectory(workingDir)
+builder.addEnvironmentVariable('LC_ALL', 'en_US.UTF8')
 builder.setLabels([
         'com.github.rmannibucau.groupId'   : project.groupId,
         'com.github.rmannibucau.artifactId': project.artifactId,
@@ -56,6 +56,7 @@ builder.addLayer(LayerConfiguration.builder()
         .build())
 builder.setEntrypoint([
         workingDir.resolve('bin/java').toString(),
+        '-XX:+UseContainerSupport',
         '--add-modules', 'com.github.rmannibucau.log.access.core',
         'com.github.rmannibucau.log.access.core.Launcher'
 ])

@@ -33,7 +33,7 @@ jobs:
   - stage: master_build
     env:
     - STEP=Build OpenJDK 11 JVM
-    script: mvn $BUILD_ARGS -Premote-docker -Ddocker.registry=registry.hub.docker.com/
+    script: mvn $BUILD_ARGS -Pdocker -Ddocker.registry=registry.hub.docker.com/
     jdk: openjdk11
 
   - stage: master_build
